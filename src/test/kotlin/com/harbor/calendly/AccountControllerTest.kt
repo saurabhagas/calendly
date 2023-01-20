@@ -12,11 +12,10 @@ import org.springframework.test.web.reactive.server.WebTestClient
 
 
 /**
- * Functional tests for /accounts resource.
+ * Integration tests for /accounts resource.
  * Serves the following purposes:
- * 1. Ensure that functionality is correct during development, and dev changes don't break functionality
- * 2. Functionality acceptance
- * 3. Documentation for the APIs
+ * 1. Helps with CI of new changes
+ * 2. Documentation for the APIs on /accounts resource
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")

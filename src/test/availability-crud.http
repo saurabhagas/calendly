@@ -1,0 +1,33 @@
+### Step 1: Send GET on availability with id 1. Should throw HTTP 404 status
+GET http://localhost:8080/availability/1
+
+### Step 2: Create request with POST. Should return the availability ID and HTTP 201 status
+POST http://localhost:8080/availability/
+Content-Type: application/json
+
+{
+    "accountId": 1,
+    "dayOfWeek": "MONDAY",
+    "startTime": "09:30",
+    "endTime": "17:00"
+}
+
+### Step 3: Send PUT on availability with id 1 to change availability details. Should return HTTP 204 status
+PUT http://localhost:8080/availability/1
+Content-Type: application/json
+
+{
+  "accountId": 1,
+  "dayOfWeek": "MONDAY",
+  "startTime": "09:30",
+  "endTime": "10:00"
+}
+
+### Step 4: Send GET on availability with id 1 to check if the updates have been applied. Should return HTTP 200 status
+GET http://localhost:8080/availability/1
+
+### Step 5: Send DELETE on availability with id 1. Should return HTTP 204 status
+DELETE http://localhost:8080/availability/1
+
+### Step 6: Send GET on availability with id 1. Should throw HTTP 403 status now that the availability has been deactivated
+GET http://localhost:8080/availability/1

@@ -1,18 +1,23 @@
 package com.harbor.calendly.entity
 
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
+import javax.persistence.OneToMany
 import javax.persistence.Table
 import javax.persistence.UniqueConstraint
 
 @Entity
-@Table(name = "accounts",  uniqueConstraints = [UniqueConstraint(columnNames=["email", "phone"])])
+@Table(
+    name = "accounts",
+    uniqueConstraints = [UniqueConstraint(columnNames=["email"]), UniqueConstraint(columnNames=["phone"])]
+)
 data class Account(
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     val id: Int? = null,
     val name: String,
@@ -20,5 +25,11 @@ data class Account(
     val phone: String,
     val company: String? = null,
     val aboutMe: String? = null,
-    val isActive: Boolean = true
+    val isActive: Boolean = true,
+    @OneToMany(
+        mappedBy = "account",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true
+    )
+    val availabilities : List<Availability> = mutableListOf()
 )
