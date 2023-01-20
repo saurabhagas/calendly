@@ -21,8 +21,9 @@ data class MeetingLink(
     @ManyToOne
     @JoinColumn(referencedColumnName = "id", nullable = false)
     val account: Account,
+    val durationInMins: Int,
     val startDate: LocalDate,
     val endDate: LocalDate
 ) {
-    override fun toString() = "MeetingLink(id=$id, accountId=${account.id}, startDate=$startDate, endDate=$endDate)"
+    override fun toString() = "MeetingLink(id=$id, accountId=${account.id}, durationInMins=$durationInMins, startDate=$startDate, endDate=$endDate)"
 }

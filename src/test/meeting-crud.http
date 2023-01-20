@@ -1,0 +1,39 @@
+### Step 1: Send GET on meeting with id 1. Should throw HTTP 404 status
+GET http://localhost:8080/meetings/1
+
+### Step 2: Create request with POST. Should return the meeting ID and HTTP 201 status
+POST http://localhost:8080/meetings/
+Content-Type: application/json
+
+{
+    "meetingLinkId": 1,
+    "date": "2023-01-30",
+    "startTime": "09:30",
+    "endTime": "10:30",
+    "requesterName": "Requester",
+    "requesterEmail": "requester@somedomain.com",
+    "requesterPhone": "900-000-000"
+}
+
+### Step 3: Send PUT on meeting with id 1 to change meeting details. Should return HTTP 204 status
+PUT http://localhost:8080/meetings/1
+Content-Type: application/json
+
+{
+    "meetingLinkId": 1,
+    "date": "2023-01-30",
+    "startTime": "09:30",
+    "endTime": "10:00",
+    "requesterName": "Requester",
+    "requesterEmail": "requester@somedomain.com",
+    "requesterPhone": "900-000-000"
+}
+
+### Step 4: Send GET on meeting with id 1 to check if the updates have been applied. Should return HTTP 200 status
+GET http://localhost:8080/meetings/1
+
+### Step 5: Send DELETE on meeting with id 1. Should return HTTP 204 status
+DELETE http://localhost:8080/meetings/1
+
+### Step 6: Send GET on meeting with id 1. Should throw HTTP 404 status now that the meeting has been deleted
+GET http://localhost:8080/meetings/1

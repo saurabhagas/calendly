@@ -2,9 +2,11 @@ package com.harbor.calendly.utils
 
 import com.harbor.calendly.dto.AccountDTO
 import com.harbor.calendly.dto.AvailabilityDTO
+import com.harbor.calendly.dto.MeetingDTO
 import com.harbor.calendly.dto.MeetingLinkDTO
 import com.harbor.calendly.entity.Account
 import com.harbor.calendly.entity.Availability
+import com.harbor.calendly.entity.Meeting
 import com.harbor.calendly.entity.MeetingLink
 
 fun AccountDTO.toAccount(
@@ -50,12 +52,40 @@ fun MeetingLinkDTO.toMeetingLink(
 ) = MeetingLink(
     id = availabilityId,
     account = account,
+    durationInMins = durationInMins,
     startDate = startDate,
     endDate = endDate
 )
 
 fun MeetingLink.toMeetingLinkDTO() = MeetingLinkDTO(
     accountId = account.id!!,
+    durationInMins = durationInMins,
     startDate = startDate,
     endDate = endDate
+)
+
+fun MeetingDTO.toMeeting(
+    meetingLink: MeetingLink,
+    meetingId: Int?
+) = Meeting(
+    id = meetingId,
+    meetingLink = meetingLink,
+    date = date,
+    startTime = startTime,
+    endTime = endTime,
+    requesterName = requesterName,
+    requesterEmail = requesterEmail,
+    requesterPhone = requesterPhone,
+    requesterNotes = requesterNotes
+)
+
+fun Meeting.toMeetingDTO() = MeetingDTO(
+    meetingLinkId = meetingLink.id!!,
+    date = date,
+    startTime = startTime,
+    endTime = endTime,
+    requesterName = requesterName,
+    requesterEmail = requesterEmail,
+    requesterPhone = requesterPhone,
+    requesterNotes = requesterNotes
 )
