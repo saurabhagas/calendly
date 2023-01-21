@@ -1,6 +1,7 @@
 package com.harbor.calendly.service
 
 import com.harbor.calendly.dto.AccountDTO
+import com.harbor.calendly.entity.Account
 import com.harbor.calendly.exception.InactiveAccountException
 import com.harbor.calendly.exception.NotFoundException
 import com.harbor.calendly.repository.AccountRepository
@@ -25,9 +26,6 @@ class AccountService(val accountRepository: AccountRepository) {
     fun getAccount(accountId: Int): AccountDTO {
         logger.info("getAccount called with: {}", accountId)
         val account = validateAndGetAccount(accountId)
-        if (!account.isActive) {
-            throw InactiveAccountException("Account with id $accountId is inactive")
-        }
         logger.info("fetched account: {}", account)
         return account.toAccountDTO()
     }
@@ -51,7 +49,13 @@ class AccountService(val accountRepository: AccountRepository) {
 
     private fun validateAndGetAccount(
         accountId: Int,
-    ) = accountRepository
-        .findById(accountId)
-        .orElseThrow { NotFoundException("Account with id: $accountId not found") }
+    ): Account {
+        val account = accountRepository
+            .findById(accountId)
+            .orElseThrow { NotFoundException("Account with id: $accountId not found") }
+        if (!account.isActive) {
+            throw InactiveAccountException("Account with id $accountId is inactive")
+        }
+        return account
+    }
 }

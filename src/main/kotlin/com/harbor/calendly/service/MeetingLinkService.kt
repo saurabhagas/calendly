@@ -1,6 +1,8 @@
 package com.harbor.calendly.service
 
 import com.harbor.calendly.dto.MeetingLinkDTO
+import com.harbor.calendly.entity.Account
+import com.harbor.calendly.exception.InactiveAccountException
 import com.harbor.calendly.exception.NotFoundException
 import com.harbor.calendly.repository.AccountRepository
 import com.harbor.calendly.repository.MeetingLinkRepository
@@ -69,7 +71,13 @@ class MeetingLinkService(
 
     private fun validateAndGetAccount(
         accountId: Int,
-    ) = accountRepository
-        .findById(accountId)
-        .orElseThrow { NotFoundException("Account with id: $accountId not found") }
+    ): Account {
+        val account = accountRepository
+            .findById(accountId)
+            .orElseThrow { NotFoundException("Account with id: $accountId not found") }
+        if (!account.isActive) {
+            throw InactiveAccountException("Account with id $accountId is inactive")
+        }
+        return account
+    }
 }
