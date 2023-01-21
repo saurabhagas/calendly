@@ -32,7 +32,7 @@ class MeetingLinkController(val meetingLinkService: MeetingLinkService) {
     @PutMapping("/{meetingLinkId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateMeetingLink(
-        @RequestBody meetingLinkDTO: MeetingLinkDTO,
+        @Valid @RequestBody meetingLinkDTO: MeetingLinkDTO,
         @PathVariable("meetingLinkId") meetingLinkId : Int
     ) = meetingLinkService.updateMeetingLink(meetingLinkId, meetingLinkDTO)
 

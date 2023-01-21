@@ -2,10 +2,9 @@ package com.harbor.calendly.service
 
 import com.harbor.calendly.dto.MeetingLinkDTO
 import com.harbor.calendly.entity.Account
-import com.harbor.calendly.exception.InactiveAccountException
 import com.harbor.calendly.exception.NotFoundException
-import com.harbor.calendly.repository.AccountRepository
 import com.harbor.calendly.repository.MeetingLinkRepository
+import com.harbor.calendly.utils.minsTill
 import com.harbor.calendly.utils.toMeetingLink
 import com.harbor.calendly.utils.toMeetingLinkDTO
 import mu.KLogging
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class MeetingLinkService(
-    val accountRepository: AccountRepository,
+    val accountService: AccountService,
     val meetingLinkRepository: MeetingLinkRepository
 ) {
     companion object : KLogging()
@@ -22,11 +21,9 @@ class MeetingLinkService(
         meetingLinkDTO: MeetingLinkDTO
     ): Int {
         logger.info("createMeetingLink called with: {}", meetingLinkDTO)
-        require(meetingLinkDTO.endDate > meetingLinkDTO.startDate) {
-            "End date should be greater than start date"
-        }
-        val account = validateAndGetAccount(meetingLinkDTO.accountId)
+        val account = accountService.validateAndGetAccount(meetingLinkDTO.accountId)
         logger.info("fetched account: {}", account)
+        ensureAvailability(account, meetingLinkDTO)
         val result = meetingLinkRepository.save(meetingLinkDTO.toMeetingLink(account))
         logger.info("create result: {}", result)
         return requireNotNull(result.id)
@@ -46,10 +43,7 @@ class MeetingLinkService(
         meetingDTO: MeetingLinkDTO
     ) {
         logger.info("updateMeeting called with: {} {}", meetingId, meetingDTO)
-        require(meetingDTO.endDate > meetingDTO.startDate) {
-            "End date should be greater than start date"
-        }
-        val account = validateAndGetAccount(meetingDTO.accountId)
+        val account = accountService.validateAndGetAccount(meetingDTO.accountId)
         logger.info("fetched account: {}", account)
         val meeting = validateAndGetMeetingLink(meetingId)
         logger.info("fetched meeting: {}", meeting)
@@ -63,21 +57,20 @@ class MeetingLinkService(
         meetingLinkRepository.deleteById(meetingId)
     }
 
-    private fun validateAndGetMeetingLink(
-        meetingId: Int,
-    ) = meetingLinkRepository
-        .findById(meetingId)
-        .orElseThrow { NotFoundException("Meeting link with id: $meetingId not found") }
-
-    private fun validateAndGetAccount(
-        accountId: Int,
-    ): Account {
-        val account = accountRepository
-            .findById(accountId)
-            .orElseThrow { NotFoundException("Account with id: $accountId not found") }
-        if (!account.isActive) {
-            throw InactiveAccountException("Account with id $accountId is inactive")
-        }
-        return account
+    private fun ensureAvailability(
+        account: Account,
+        meetingLinkDTO: MeetingLinkDTO
+    ) = meetingLinkDTO.dates.forEach { date ->
+        account.availabilities
+            .filter { it.dayOfWeek == date.dayOfWeek }
+            .ifEmpty { throw NotFoundException("Did not find availability for date ${date.dayOfWeek}") }
+            .filter { it.startTime.minsTill(it.endTime) >= meetingLinkDTO.durationInMins }
+            .ifEmpty { throw NotFoundException("Did not find available slot of size ${meetingLinkDTO.durationInMins} for date $date") }
     }
+
+    fun validateAndGetMeetingLink(
+        meetingLinkId: Int,
+    ) = meetingLinkRepository
+        .findById(meetingLinkId)
+        .orElseThrow { NotFoundException("Meeting link with id: $meetingLinkId not found") }
 }

@@ -2,6 +2,7 @@ package com.harbor.calendly.entity
 
 import java.time.LocalDate
 import javax.persistence.Column
+import javax.persistence.ElementCollection
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
@@ -22,8 +23,9 @@ data class MeetingLink(
     @JoinColumn(referencedColumnName = "id", nullable = false)
     val account: Account,
     val durationInMins: Int,
-    val startDate: LocalDate,
-    val endDate: LocalDate
+
+    @ElementCollection
+    val dates: List<LocalDate>
 ) {
-    override fun toString() = "MeetingLink(id=$id, accountId=${account.id}, durationInMins=$durationInMins, startDate=$startDate, endDate=$endDate)"
+    override fun toString() = "MeetingLink(id=$id, accountId=${account.id}, durationInMins=$durationInMins, dates=$dates)"
 }

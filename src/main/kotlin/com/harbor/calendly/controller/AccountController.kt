@@ -32,7 +32,7 @@ class AccountController(val accountService: AccountService) {
     @PutMapping("/{accountId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateAccount(
-        @RequestBody accountDTO: AccountDTO,
+        @Valid @RequestBody accountDTO: AccountDTO,
         @PathVariable("accountId") accountId : Int
     ) = accountService.updateAccount(accountId, accountDTO)
 

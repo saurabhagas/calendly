@@ -32,7 +32,7 @@ class AvailabilityController(val availabilityService: AvailabilityService) {
     @PutMapping("/{availabilityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateAvailability(
-        @RequestBody availabilityDTO: AvailabilityDTO,
+        @Valid @RequestBody availabilityDTO: AvailabilityDTO,
         @PathVariable("availabilityId") availabilityId : Int
     ) = availabilityService.updateAvailability(availabilityId, availabilityDTO)
 

@@ -10,13 +10,9 @@ import javax.persistence.Id
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.Table
-import javax.persistence.UniqueConstraint
 
 @Entity
-@Table(
-    name = "availability",
-    uniqueConstraints = [UniqueConstraint(columnNames=["account_id", "dayOfWeek"])]
-)
+@Table(name = "availability")
 data class Availability(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

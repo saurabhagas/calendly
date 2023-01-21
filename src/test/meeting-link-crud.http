@@ -7,8 +7,8 @@ Content-Type: application/json
 
 {
     "accountId": 1,
-    "startDate": "2023-01-30",
-    "endDate": "2023-01-31"
+    "durationInMins": 30,
+    "dates": ["2023-01-30"]
 }
 
 ### Step 3: Send PUT on meeting link with id 1 to change meeting link details. Should return HTTP 204 status
@@ -16,9 +16,9 @@ PUT http://localhost:8080/meeting-links/1
 Content-Type: application/json
 
 {
-  "accountId": 1,
-  "startDate": "2023-01-30",
-  "endDate": "2023-02-01"
+    "accountId": 1,
+    "durationInMins": 60,
+    "dates": ["2023-01-30", "2023-01-31"]
 }
 
 ### Step 4: Send GET on meeting link with id 1 to check if the updates have been applied. Should return HTTP 200 status

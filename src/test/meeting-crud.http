@@ -6,10 +6,10 @@ POST http://localhost:8080/meetings/
 Content-Type: application/json
 
 {
-    "meetingLinkId": 1,
+    "meetingLinkId": 2,
     "date": "2023-01-30",
     "startTime": "09:30",
-    "endTime": "10:30",
+    "endTime": "10:00",
     "requesterName": "Requester",
     "requesterEmail": "requester@somedomain.com",
     "requesterPhone": "900-000-000"

@@ -8,8 +8,8 @@ Content-Type: application/json
 {
     "accountId": 1,
     "dayOfWeek": "MONDAY",
-    "startTime": "09:30",
-    "endTime": "17:00"
+    "startTime": "10:45",
+    "endTime": "12:00"
 }
 
 ### Step 3: Send PUT on availability with id 1 to change availability details. Should return HTTP 204 status
@@ -17,10 +17,10 @@ PUT http://localhost:8080/availability/1
 Content-Type: application/json
 
 {
-  "accountId": 1,
-  "dayOfWeek": "MONDAY",
-  "startTime": "09:30",
-  "endTime": "10:00"
+    "accountId": 1,
+    "dayOfWeek": "MONDAY",
+    "startTime": "09:30",
+    "endTime": "10:00"
 }
 
 ### Step 4: Send GET on availability with id 1 to check if the updates have been applied. Should return HTTP 200 status

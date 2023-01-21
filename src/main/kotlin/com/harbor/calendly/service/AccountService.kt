@@ -47,7 +47,7 @@ class AccountService(val accountRepository: AccountRepository) {
         }
     }
 
-    private fun validateAndGetAccount(
+    fun validateAndGetAccount(
         accountId: Int,
     ): Account {
         val account = accountRepository

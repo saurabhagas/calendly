@@ -8,6 +8,8 @@ import com.harbor.calendly.entity.Account
 import com.harbor.calendly.entity.Availability
 import com.harbor.calendly.entity.Meeting
 import com.harbor.calendly.entity.MeetingLink
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 fun AccountDTO.toAccount(
     accountId: Int? = null
@@ -53,15 +55,13 @@ fun MeetingLinkDTO.toMeetingLink(
     id = availabilityId,
     account = account,
     durationInMins = durationInMins,
-    startDate = startDate,
-    endDate = endDate
+    dates = dates
 )
 
 fun MeetingLink.toMeetingLinkDTO() = MeetingLinkDTO(
     accountId = account.id!!,
     durationInMins = durationInMins,
-    startDate = startDate,
-    endDate = endDate
+    dates = dates
 )
 
 fun MeetingDTO.toMeeting(
@@ -89,3 +89,5 @@ fun Meeting.toMeetingDTO() = MeetingDTO(
     requesterPhone = requesterPhone,
     requesterNotes = requesterNotes
 )
+
+fun LocalTime.minsTill(other: LocalTime) = until(other, ChronoUnit.MINUTES).toInt()

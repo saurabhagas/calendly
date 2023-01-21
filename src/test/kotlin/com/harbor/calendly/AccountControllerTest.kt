@@ -1,47 +1,12 @@
 package com.harbor.calendly
 
 import com.harbor.calendly.dto.AccountDTO
-import com.harbor.calendly.repository.AccountRepository
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.web.reactive.server.WebTestClient
-
 
 /**
  * Integration tests for /accounts resource.
- * Serves the following purposes:
- * 1. Helps with CI of new changes
- * 2. Documentation for the APIs on /accounts resource
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
-@AutoConfigureWebTestClient
-internal class AccountControllerTest {
-
-    companion object {
-        private const val NAME_1 = "Saurabh"
-        private const val NAME_2 = "Suresh"
-        private const val EMAIL_1 = "saurabh@somedomain.com"
-        private const val EMAIL_2 = "saurabh@habor.com"
-        private const val PHONE_1 = "123-234-345"
-        private const val PHONE_2 = "888-888-888"
-    }
-
-    @Autowired
-    lateinit var webTestClient: WebTestClient
-
-    @Autowired
-    lateinit var accountRepository: AccountRepository
-
-    @BeforeEach
-    fun setUp() {
-        accountRepository.deleteAll()
-    }
-
+class AccountControllerTest : BaseTest() {
     @Test
     fun testCreateAccountWithInvalidDTO() {
         webTestClient
@@ -70,6 +35,17 @@ internal class AccountControllerTest {
             .bodyValue(AccountDTO(NAME_1, "", PHONE_1))
             .exchange()
             .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun testCreateAccountWithInvalidEmail() {
+        webTestClient
+            .post()
+            .uri("/accounts")
+            .bodyValue(AccountDTO(NAME_1, "blah", PHONE_1))
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody(String::class.java).isEqualTo("email must be valid")
     }
 
     @Test
@@ -127,7 +103,6 @@ internal class AccountControllerTest {
     @Test
     fun testGetPresentAccount() {
         val accountId = createAccount()
-
         webTestClient
             .get()
             .uri("/accounts/{accountId}", accountId)
@@ -150,7 +125,6 @@ internal class AccountControllerTest {
     @Test
     fun testUpdatePresentAccount() {
         val accountId = createAccount()
-
         webTestClient
             .put()
             .uri("/accounts/{accountId}", accountId)
@@ -181,7 +155,6 @@ internal class AccountControllerTest {
     @Test
     fun testGetDeactivatedAccount() {
         val accountId = createAccount()
-        println("#####Account created with id: $accountId")
         webTestClient
             .delete()
             .uri("/accounts/{accountId}", accountId)
@@ -192,13 +165,4 @@ internal class AccountControllerTest {
             .exchange()
             .expectStatus().isForbidden
     }
-
-    private fun createAccount() = webTestClient
-        .post()
-        .uri("/accounts")
-        .bodyValue(AccountDTO(NAME_1, EMAIL_1, PHONE_1))
-        .exchange()
-        .expectBody(Int::class.java)
-        .returnResult()
-        .responseBody
 }

@@ -1,25 +1,24 @@
 package com.harbor.calendly.service
 
+import com.harbor.calendly.dto.AvailabilityDTO
 import com.harbor.calendly.dto.MeetingDTO
 import com.harbor.calendly.entity.Availability
 import com.harbor.calendly.entity.Meeting
 import com.harbor.calendly.entity.MeetingLink
 import com.harbor.calendly.exception.NotFoundException
-import com.harbor.calendly.repository.AvailabilityRepository
-import com.harbor.calendly.repository.MeetingLinkRepository
 import com.harbor.calendly.repository.MeetingRepository
+import com.harbor.calendly.utils.minsTill
 import com.harbor.calendly.utils.toMeeting
 import com.harbor.calendly.utils.toMeetingDTO
 import mu.KLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.temporal.ChronoUnit
 
 @Service
 class MeetingService(
     val meetingRepository: MeetingRepository,
-    val availabilityRepository: AvailabilityRepository,
-    val meetingLinkRepository: MeetingLinkRepository
+    val availabilityService: AvailabilityService,
+    val meetingLinkService: MeetingLinkService
 ) {
     companion object : KLogging()
 
@@ -30,10 +29,10 @@ class MeetingService(
         require(meetingDTO.endTime > meetingDTO.startTime) {
             "End time should be greater than start time"
         }
-        val meetingLink = validateAndGetMeetingLink(meetingDTO.meetingLinkId)
+        val meetingLink = meetingLinkService.validateAndGetMeetingLink(meetingDTO.meetingLinkId)
         logger.info("fetched meeting link: {}", meetingLink)
 
-        require(meetingLink.durationInMins.toLong() == meetingDTO.startTime.until(meetingDTO.endTime, ChronoUnit.MINUTES)) {
+        require(meetingLink.durationInMins == meetingDTO.startTime.minsTill(meetingDTO.endTime)) {
             "Meeting link duration doesn't allow requested duration"
         }
         val availability = meetingLink.account.availabilities
@@ -60,35 +59,39 @@ class MeetingService(
         availability: Availability,
         meetingDTO: MeetingDTO,
     ) {
-        availabilityRepository.deleteById(availability.id!!)
+        availabilityService.deleteAvailability(availability.id!!)
         if (meetingDTO.startTime == availability.startTime && meetingDTO.endTime < availability.endTime) {
-            val newAvailability = availability.copy(
-                id = null,
+            val newAvailability = AvailabilityDTO(
+                accountId = availability.account.id!!,
+                dayOfWeek = availability.dayOfWeek,
                 startTime = meetingDTO.endTime,
                 endTime = availability.endTime
             )
-            availabilityRepository.save(newAvailability)
+            availabilityService.createAvailability(newAvailability)
         } else if (meetingDTO.startTime > availability.startTime && meetingDTO.endTime == availability.endTime) {
-            val newAvailability = availability.copy(
-                id = null,
+            val newAvailability = AvailabilityDTO(
+                accountId = availability.account.id!!,
+                dayOfWeek = availability.dayOfWeek,
                 startTime = availability.startTime,
                 endTime = meetingDTO.startTime
             )
-            availabilityRepository.save(newAvailability)
+            availabilityService.createAvailability(newAvailability)
         } else if (meetingDTO.startTime > availability.startTime && meetingDTO.endTime < availability.endTime) {
-            val newAvailability1 = availability.copy(
-                id = null,
+            val newAvailability1 = AvailabilityDTO(
+                accountId = availability.account.id!!,
+                dayOfWeek = availability.dayOfWeek,
                 startTime = availability.startTime,
                 endTime = meetingDTO.startTime
             )
-            availabilityRepository.save(newAvailability1)
+            availabilityService.createAvailability(newAvailability1)
 
-            val newAvailability2 = availability.copy(
-                id = null,
+            val newAvailability2 = AvailabilityDTO(
+                accountId = availability.account.id,
+                dayOfWeek = availability.dayOfWeek,
                 startTime = meetingDTO.endTime,
                 endTime = availability.endTime
             )
-            availabilityRepository.save(newAvailability2)
+            availabilityService.createAvailability(newAvailability2)
         }
     }
 
@@ -109,7 +112,7 @@ class MeetingService(
         require(meetingDTO.endTime > meetingDTO.startTime) {
             "End time should be greater than start time"
         }
-        val meetingLink = validateAndGetMeetingLink(meetingDTO.meetingLinkId)
+        val meetingLink = meetingLinkService.validateAndGetMeetingLink(meetingDTO.meetingLinkId)
         logger.info("fetched meeting link: {}", meetingLink)
         val meeting = validateAndGetMeeting(meetingId)
         logger.info("fetched meeting: {}", meeting)
@@ -128,10 +131,4 @@ class MeetingService(
     ) = meetingRepository
         .findById(meetingId)
         .orElseThrow { NotFoundException("Meeting with id: $meetingId not found") }
-
-    private fun validateAndGetMeetingLink(
-        meetingLinkId: Int,
-    ) = meetingLinkRepository
-        .findById(meetingLinkId)
-        .orElseThrow { NotFoundException("Meeting link with id: $meetingLinkId not found") }
 }
