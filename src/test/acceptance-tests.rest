@@ -1,0 +1,42 @@
+### Step 1: Create an account. Should return the account ID and HTTP 201 status
+POST http://18.212.192.193:8080/accounts/
+Content-Type: application/json
+
+{
+  "name": "Saurabh Agarwal",
+  "email": "saurabh.agarwal@udaan.com",
+  "phone": "123-234-345",
+  "company": "Udaan"
+}
+
+### Step 2: Create an availability. Should return the availability ID and HTTP 201 status
+POST http://18.212.192.193:8080/accounts/1/availability/
+Content-Type: application/json
+
+{
+  "dayOfWeek": "MONDAY",
+  "startTime": "12:00",
+  "endTime": "12:30"
+}
+
+### Step 3: Create a meeting link. Should return the meeting link ID and HTTP 201 status
+POST http://18.212.192.193:8080/accounts/1/availability/1/meeting-links/
+Content-Type: application/json
+
+{
+  "durationInMins": 30,
+  "dates": ["2023-01-30"]
+}
+
+### Step 4: Create request with POST. Should return the meeting ID and HTTP 201 status
+POST http://18.212.192.193:8080/accounts/1/availability/1/meeting-links/1/meetings/
+Content-Type: application/json
+
+{
+  "date": "2023-01-30",
+  "startTime": "11:30",
+  "endTime": "12:00",
+  "requesterName": "Requester",
+  "requesterEmail": "requester@somedomain.com",
+  "requesterPhone": "900-000-000"
+}

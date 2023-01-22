@@ -1,9 +1,10 @@
 package com.harbor.calendly.entity
 
-import java.time.LocalDate
+import java.time.DayOfWeek
+import java.time.LocalTime
 import javax.persistence.Column
-import javax.persistence.ElementCollection
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
@@ -12,20 +13,20 @@ import javax.persistence.ManyToOne
 import javax.persistence.Table
 
 @Entity
-@Table(name = "meeting_links")
-data class MeetingLink(
+@Table(name = "availability")
+data class AvailabilityEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     val id: Int? = null,
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "id", nullable = false)
-    val account: Account,
-    val durationInMins: Int,
-
-    @ElementCollection
-    val dates: List<LocalDate>
+    val account: AccountEntity,
+    val dayOfWeek: DayOfWeek,
+    val startTime: LocalTime,
+    val endTime: LocalTime
 ) {
-    override fun toString() = "MeetingLink(id=$id, accountId=${account.id}, durationInMins=$durationInMins, dates=$dates)"
+    override fun toString() =
+        "Availability(id=$id, accountId=${account.id}, dayOfWeek=$dayOfWeek, startTime=$startTime, endTime=$endTime)"
 }

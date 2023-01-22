@@ -1,6 +1,6 @@
 package com.harbor.calendly.repository
 
-import com.harbor.calendly.entity.MeetingLink
+import com.harbor.calendly.entity.MeetingLinkEntity
 import org.springframework.data.repository.CrudRepository
 
-interface MeetingLinkRepository : CrudRepository<MeetingLink, Int>
+interface MeetingLinkRepository : CrudRepository<MeetingLinkEntity, Int>

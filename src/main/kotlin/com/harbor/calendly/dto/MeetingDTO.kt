@@ -6,7 +6,6 @@ import java.time.LocalTime
 import javax.validation.constraints.Email
 
 data class MeetingDTO(
-    val meetingLinkId: Int,
     val date: LocalDate,
     val startTime: LocalTime,
     val endTime: LocalTime,

@@ -15,7 +15,7 @@ import javax.persistence.UniqueConstraint
     name = "accounts",
     uniqueConstraints = [UniqueConstraint(columnNames=["email"]), UniqueConstraint(columnNames=["phone"])]
 )
-data class Account(
+data class AccountEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -31,5 +31,12 @@ data class Account(
         cascade = [CascadeType.ALL],
         orphanRemoval = true
     )
-    val availabilities : List<Availability> = mutableListOf()
+    val availabilities : MutableList<AvailabilityEntity> = mutableListOf(),
+
+    @OneToMany(
+        mappedBy = "account",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true
+    )
+    val meetingLinks : MutableList<MeetingLinkEntity> = mutableListOf(),
 )

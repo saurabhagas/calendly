@@ -1,17 +1,26 @@
 package com.harbor.calendly
 
 import com.harbor.calendly.dto.MeetingDTO
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
  * Integration tests for /meetings resource.
  */
 class MeetingControllerTest:BaseTest() {
+    @BeforeEach
+    fun setUp() {
+        meetingRepository.deleteAll()
+        meetingLinkRepository.deleteAll()
+        availabilityRepository.deleteAll()
+        accountRepository.deleteAll()
+    }
+
     @Test
     fun testCreateMeetingWithInvalidDTO() {
         webTestClient
             .post()
-            .uri("/meetings")
+            .uri("/accounts/1/meeting-links/1/meetings")
             .bodyValue(SomeClass(123, 1234567890))
             .exchange()
             .expectStatus().isBadRequest
@@ -21,9 +30,8 @@ class MeetingControllerTest:BaseTest() {
     fun testCreateMeetingWhenEndTimeEarlierThanStartTime() {
         webTestClient
             .post()
-            .uri("/meetings")
-            .bodyValue(MeetingDTO(1, DATE_1,
-                START_TIME_1, START_TIME_1.minusHours(1), REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE))
+            .uri("/accounts/1/meeting-links/1/meetings")
+            .bodyValue(MeetingDTO(DATE_1, START_TIME_1, START_TIME_1.minusHours(1), REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE))
             .exchange()
             .expectStatus().isBadRequest
     }
@@ -36,8 +44,8 @@ class MeetingControllerTest:BaseTest() {
         val meetingLinkId = createMeetingLink(accountId)
         webTestClient
             .post()
-            .uri("/meetings")
-            .bodyValue(newMeetingDTO(meetingLinkId))
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings")
+            .bodyValue(newMeetingDTO())
             .exchange()
             .expectStatus().isCreated
             .expectBody(Int::class.java)
@@ -47,7 +55,7 @@ class MeetingControllerTest:BaseTest() {
     fun testGetAbsentMeeting() {
         webTestClient
             .get()
-            .uri("/meetings/1")
+            .uri("/accounts/1/meeting-links/1/meetings/1")
             .exchange()
             .expectStatus().isNotFound
     }
@@ -58,22 +66,22 @@ class MeetingControllerTest:BaseTest() {
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
-        val meetingId = createMeeting(meetingLinkId)
+        val meetingId = createMeeting(accountId, meetingLinkId)
         webTestClient
             .get()
-            .uri("/meetings/{meetingId}", meetingId)
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings/$meetingId")
             .exchange()
             .expectStatus().isOk
             .expectBody(MeetingDTO::class.java)
-            .isEqualTo(newMeetingDTO(meetingLinkId))
+            .isEqualTo(newMeetingDTO())
     }
 
     @Test
     fun testUpdateAbsentMeeting() {
         webTestClient
             .put()
-            .uri("/meetings/1")
-            .bodyValue(newMeetingDTO(1))
+            .uri("/accounts/1/meeting-links/1/meetings/1")
+            .bodyValue(newMeetingDTO())
             .exchange()
             .expectStatus().isNotFound
     }
@@ -84,11 +92,11 @@ class MeetingControllerTest:BaseTest() {
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
-        val meetingId = createMeeting(meetingLinkId)
+        val meetingId = createMeeting(accountId, meetingLinkId)
         webTestClient
             .put()
-            .uri("/meetings/{meetingId}", meetingId)
-            .bodyValue(MeetingDTO(meetingLinkId, DATE_1, START_TIME_1, START_TIME_1.minusHours(1), REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE))
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings/$meetingId")
+            .bodyValue(MeetingDTO(DATE_1, START_TIME_1, START_TIME_1.minusHours(1), REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE))
             .exchange()
             .expectStatus().isBadRequest
     }
@@ -99,11 +107,11 @@ class MeetingControllerTest:BaseTest() {
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
-        val meetingId = createMeeting(meetingLinkId)
+        val meetingId = createMeeting(accountId, meetingLinkId)
         webTestClient
             .put()
-            .uri("/meetings/{meetingId}", meetingId)
-            .bodyValue(newMeetingDTO(meetingLinkId))
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings/$meetingId")
+            .bodyValue(newMeetingDTO())
             .exchange()
             .expectStatus().isNoContent
     }
@@ -112,7 +120,7 @@ class MeetingControllerTest:BaseTest() {
     fun testDeleteAbsentMeeting() {
         webTestClient
             .delete()
-            .uri("/meetings/1")
+            .uri("/accounts/1/meeting-links/1/meetings/1")
             .exchange()
             .expectStatus().isNotFound
     }
@@ -123,10 +131,10 @@ class MeetingControllerTest:BaseTest() {
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
-        val meetingId = createMeeting(meetingLinkId)
+        val meetingId = createMeeting(accountId, meetingLinkId)
         webTestClient
             .delete()
-            .uri("/meetings/{meetingId}", meetingId)
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings/$meetingId")
             .exchange()
             .expectStatus().isNoContent
     }

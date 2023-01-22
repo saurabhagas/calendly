@@ -4,16 +4,16 @@ import com.harbor.calendly.dto.AccountDTO
 import com.harbor.calendly.dto.AvailabilityDTO
 import com.harbor.calendly.dto.MeetingDTO
 import com.harbor.calendly.dto.MeetingLinkDTO
-import com.harbor.calendly.entity.Account
-import com.harbor.calendly.entity.Availability
-import com.harbor.calendly.entity.Meeting
-import com.harbor.calendly.entity.MeetingLink
+import com.harbor.calendly.entity.AccountEntity
+import com.harbor.calendly.entity.AvailabilityEntity
+import com.harbor.calendly.entity.MeetingEntity
+import com.harbor.calendly.entity.MeetingLinkEntity
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 fun AccountDTO.toAccount(
     accountId: Int? = null
-) = Account(
+) = AccountEntity(
     id = accountId,
     name = name,
     email = email,
@@ -22,7 +22,7 @@ fun AccountDTO.toAccount(
     aboutMe = aboutMe
 )
 
-fun Account.toAccountDTO() = AccountDTO(
+fun AccountEntity.toAccountDTO() = AccountDTO(
     name = name,
     email = email,
     phone = phone,
@@ -31,9 +31,9 @@ fun Account.toAccountDTO() = AccountDTO(
 )
 
 fun AvailabilityDTO.toAvailability(
-    account: Account,
+    account: AccountEntity,
     availabilityId: Int? = null
-) = Availability(
+) = AvailabilityEntity(
     id = availabilityId,
     account = account,
     dayOfWeek = dayOfWeek,
@@ -41,33 +41,31 @@ fun AvailabilityDTO.toAvailability(
     endTime = endTime
 )
 
-fun Availability.toAvailabilityDTO() = AvailabilityDTO(
-    accountId = account.id!!,
+fun AvailabilityEntity.toAvailabilityDTO() = AvailabilityDTO(
     dayOfWeek = dayOfWeek,
     startTime = startTime,
     endTime = endTime
 )
 
 fun MeetingLinkDTO.toMeetingLink(
-    account: Account,
+    account: AccountEntity,
     availabilityId: Int? = null
-) = MeetingLink(
+) = MeetingLinkEntity(
     id = availabilityId,
     account = account,
     durationInMins = durationInMins,
     dates = dates
 )
 
-fun MeetingLink.toMeetingLinkDTO() = MeetingLinkDTO(
-    accountId = account.id!!,
+fun MeetingLinkEntity.toMeetingLinkDTO() = MeetingLinkDTO(
     durationInMins = durationInMins,
     dates = dates
 )
 
 fun MeetingDTO.toMeeting(
-    meetingLink: MeetingLink,
+    meetingLink: MeetingLinkEntity,
     meetingId: Int?
-) = Meeting(
+) = MeetingEntity(
     id = meetingId,
     meetingLink = meetingLink,
     date = date,
@@ -79,8 +77,7 @@ fun MeetingDTO.toMeeting(
     requesterNotes = requesterNotes
 )
 
-fun Meeting.toMeetingDTO() = MeetingDTO(
-    meetingLinkId = meetingLink.id!!,
+fun MeetingEntity.toMeetingDTO() = MeetingDTO(
     date = date,
     startTime = startTime,
     endTime = endTime,

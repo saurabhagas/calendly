@@ -6,10 +6,10 @@ POST http://localhost:8080/accounts/
 Content-Type: application/json
 
 {
-    "name": "Saurabh Agarwal",
-    "email": "saurabh.agarwal@udaan.com",
-    "phone": "123-234-345",
-    "company": "Udaan"
+  "name": "Saurabh Agarwal",
+  "email": "saurabh.agarwal@udaan.com",
+  "phone": "123-234-345",
+  "company": "Udaan"
 }
 
 ### Step 3: Send PUT on account with id 1 to change account details. Should return HTTP 204 status

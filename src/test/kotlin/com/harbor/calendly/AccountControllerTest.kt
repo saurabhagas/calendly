@@ -1,12 +1,18 @@
 package com.harbor.calendly
 
 import com.harbor.calendly.dto.AccountDTO
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
  * Integration tests for /accounts resource.
  */
 class AccountControllerTest : BaseTest() {
+    @BeforeEach
+    fun setUp() {
+        accountRepository.deleteAll()
+    }
+
     @Test
     fun testCreateAccountWithInvalidDTO() {
         webTestClient

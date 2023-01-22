@@ -1,17 +1,25 @@
 package com.harbor.calendly
 
 import com.harbor.calendly.dto.MeetingLinkDTO
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
  * Integration tests for /meeting-links resource.
  */
 class MeetingLinkControllerTest : BaseTest() {
+    @BeforeEach
+    fun setUp() {
+        meetingLinkRepository.deleteAll()
+        availabilityRepository.deleteAll()
+        accountRepository.deleteAll()
+    }
+
     @Test
     fun testCreateMeetingLinkWithInvalidDTO() {
         webTestClient
             .post()
-            .uri("/meeting-links")
+            .uri("/accounts/1/meeting-links")
             .bodyValue(SomeClass(123, 1234567890))
             .exchange()
             .expectStatus().isBadRequest
@@ -21,8 +29,8 @@ class MeetingLinkControllerTest : BaseTest() {
     fun testCreateMeetingLinkDatesIsEmpty() {
         webTestClient
             .post()
-            .uri("/meeting-links")
-            .bodyValue(MeetingLinkDTO(1, DURATION_IN_MINS, emptyList()))
+            .uri("/accounts/1/meeting-links")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, emptyList()))
             .exchange()
             .expectStatus().isBadRequest
     }
@@ -33,8 +41,8 @@ class MeetingLinkControllerTest : BaseTest() {
         deactivateAccount(accountId)
         webTestClient
             .post()
-            .uri("/meeting-links")
-            .bodyValue(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+            .uri("/accounts/$accountId/meeting-links")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
             .exchange()
             .expectStatus().isForbidden
     }
@@ -43,8 +51,8 @@ class MeetingLinkControllerTest : BaseTest() {
     fun testCreateMeetingLinkForDisallowedDuration() {
         webTestClient
             .post()
-            .uri("/meeting-links")
-            .bodyValue(MeetingLinkDTO(1, 1, DATES))
+            .uri("/accounts/1/meeting-links")
+            .bodyValue(MeetingLinkDTO(1, DATES))
             .exchange()
             .expectStatus().isBadRequest
     }
@@ -55,8 +63,8 @@ class MeetingLinkControllerTest : BaseTest() {
         createAvailability(accountId)
         webTestClient
             .post()
-            .uri("/meeting-links")
-            .bodyValue(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+            .uri("/accounts/$accountId/meeting-links")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
             .exchange()
             .expectStatus().isNotFound
     }
@@ -68,8 +76,8 @@ class MeetingLinkControllerTest : BaseTest() {
         createAvailability2(accountId)
         webTestClient
             .post()
-            .uri("/meeting-links")
-            .bodyValue(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+            .uri("/accounts/$accountId/meeting-links")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
             .exchange()
             .expectStatus().isCreated
             .expectBody(Int::class.java)
@@ -79,7 +87,7 @@ class MeetingLinkControllerTest : BaseTest() {
     fun testGetAbsentMeetingLink() {
         webTestClient
             .get()
-            .uri("/meeting-links/1")
+            .uri("/accounts/1/meeting-links/1")
             .exchange()
             .expectStatus().isNotFound
     }
@@ -92,19 +100,19 @@ class MeetingLinkControllerTest : BaseTest() {
         val meetingLinkId = createMeetingLink(accountId)
         webTestClient
             .get()
-            .uri("/meeting-links/{meetingLinkId}", meetingLinkId)
+            .uri("/accounts/$accountId/meeting-links/{meetingLinkId}", meetingLinkId)
             .exchange()
             .expectStatus().isOk
             .expectBody(MeetingLinkDTO::class.java)
-            .isEqualTo(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+            .isEqualTo(MeetingLinkDTO(DURATION_IN_MINS, DATES))
     }
 
     @Test
     fun testUpdateAbsentMeetingLink() {
         webTestClient
             .put()
-            .uri("/meeting-links/1")
-            .bodyValue(MeetingLinkDTO(1, DURATION_IN_MINS, DATES))
+            .uri("/accounts/1/meeting-links/1")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
             .exchange()
             .expectStatus().isNotFound
     }
@@ -113,8 +121,8 @@ class MeetingLinkControllerTest : BaseTest() {
     fun testUpdateMeetingLinkWhenDatesListIsEmpty() {
         webTestClient
             .put()
-            .uri("/meeting-links/1")
-            .bodyValue(MeetingLinkDTO(1, DURATION_IN_MINS, emptyList()))
+            .uri("/accounts/1/meeting-links/1")
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, emptyList()))
             .exchange()
             .expectStatus().isBadRequest
     }
@@ -127,8 +135,8 @@ class MeetingLinkControllerTest : BaseTest() {
         val meetingLinkId = createMeetingLink(accountId)
         webTestClient
             .put()
-            .uri("/meeting-links/{meetingLinkId}", meetingLinkId)
-            .bodyValue(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+            .uri("/accounts/$accountId/meeting-links/{meetingLinkId}", meetingLinkId)
+            .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
             .exchange()
             .expectStatus().isNoContent
     }
@@ -137,7 +145,7 @@ class MeetingLinkControllerTest : BaseTest() {
     fun testDeleteAbsentMeetingLink() {
         webTestClient
             .delete()
-            .uri("/meeting-links/1")
+            .uri("/accounts/1/meeting-links/1")
             .exchange()
             .expectStatus().isNotFound
     }
@@ -150,7 +158,7 @@ class MeetingLinkControllerTest : BaseTest() {
         val meetingLinkId = createMeetingLink(accountId)
         webTestClient
             .delete()
-            .uri("/meeting-links/{meetingLinkId}", meetingLinkId)
+            .uri("/accounts/$accountId/meeting-links/$meetingLinkId")
             .exchange()
             .expectStatus().isNoContent
     }

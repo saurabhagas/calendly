@@ -1,13 +1,13 @@
 package com.harbor.calendly.repository
 
-import com.harbor.calendly.entity.Account
+import com.harbor.calendly.entity.AccountEntity
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.transaction.annotation.Transactional
 
-interface AccountRepository : CrudRepository<Account, Int> {
+interface AccountRepository : CrudRepository<AccountEntity, Int> {
     @Modifying
     @Transactional
     @Query(value = "UPDATE accounts SET is_active = false WHERE id = :id", nativeQuery = true)

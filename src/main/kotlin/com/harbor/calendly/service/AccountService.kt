@@ -1,7 +1,7 @@
 package com.harbor.calendly.service
 
 import com.harbor.calendly.dto.AccountDTO
-import com.harbor.calendly.entity.Account
+import com.harbor.calendly.entity.AccountEntity
 import com.harbor.calendly.exception.InactiveAccountException
 import com.harbor.calendly.exception.NotFoundException
 import com.harbor.calendly.repository.AccountRepository
@@ -49,7 +49,7 @@ class AccountService(val accountRepository: AccountRepository) {
 
     fun validateAndGetAccount(
         accountId: Int,
-    ): Account {
+    ): AccountEntity {
         val account = accountRepository
             .findById(accountId)
             .orElseThrow { NotFoundException("Account with id: $accountId not found") }

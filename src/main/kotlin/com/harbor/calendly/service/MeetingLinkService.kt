@@ -1,7 +1,7 @@
 package com.harbor.calendly.service
 
 import com.harbor.calendly.dto.MeetingLinkDTO
-import com.harbor.calendly.entity.Account
+import com.harbor.calendly.entity.AccountEntity
 import com.harbor.calendly.exception.NotFoundException
 import com.harbor.calendly.repository.MeetingLinkRepository
 import com.harbor.calendly.utils.minsTill
@@ -18,10 +18,11 @@ class MeetingLinkService(
     companion object : KLogging()
 
     fun createMeetingLink(
+        accountId: Int,
         meetingLinkDTO: MeetingLinkDTO
     ): Int {
-        logger.info("createMeetingLink called with: {}", meetingLinkDTO)
-        val account = accountService.validateAndGetAccount(meetingLinkDTO.accountId)
+        logger.info("createMeetingLink called with accountId: {} and {}", accountId, meetingLinkDTO)
+        val account = accountService.validateAndGetAccount(accountId)
         logger.info("fetched account: {}", account)
         ensureAvailability(account, meetingLinkDTO)
         val result = meetingLinkRepository.save(meetingLinkDTO.toMeetingLink(account))
@@ -30,35 +31,52 @@ class MeetingLinkService(
     }
 
     fun getMeetingLink(
-        meetingId: Int
+        meetingLinkId: Int
     ): MeetingLinkDTO {
-        logger.info("getMeeting called with: {}", meetingId)
-        val meeting = validateAndGetMeetingLink(meetingId)
-        logger.info("fetched meeting: {}", meeting)
-        return meeting.toMeetingLinkDTO()
+        logger.info("getMeetingLink called with: {}", meetingLinkId)
+        val meetingLink = validateAndGetMeetingLink(meetingLinkId)
+        logger.info("fetched meeting link: {}", meetingLink)
+        return meetingLink.toMeetingLinkDTO()
+    }
+
+    fun getAllMeetingLinks(
+        accountId: Int
+    ): List<MeetingLinkDTO> {
+        logger.info("getAllMeetingLinks called with: {}", accountId)
+        val account = accountService.validateAndGetAccount(accountId)
+        logger.info("fetched account: {}", account)
+        return account.meetingLinks.map { it.toMeetingLinkDTO() }
     }
 
     fun updateMeetingLink(
-        meetingId: Int,
+        accountId: Int,
+        meetingLinkId: Int,
         meetingDTO: MeetingLinkDTO
     ) {
-        logger.info("updateMeeting called with: {} {}", meetingId, meetingDTO)
-        val account = accountService.validateAndGetAccount(meetingDTO.accountId)
+        logger.info("updateMeetingLink called with accountId: {}, meetingLink: {} and {}", accountId, meetingLinkId, meetingDTO)
+        val account = accountService.validateAndGetAccount(accountId)
         logger.info("fetched account: {}", account)
-        val meeting = validateAndGetMeetingLink(meetingId)
-        logger.info("fetched meeting: {}", meeting)
-        meetingLinkRepository.save(meetingDTO.toMeetingLink(account, meetingId))
+        val meetingLink = validateAndGetMeetingLink(meetingLinkId)
+        logger.info("fetched meeting: {}", meetingLink)
+        meetingLinkRepository.save(meetingDTO.toMeetingLink(account, meetingLinkId))
     }
 
-    fun deleteMeetingLink(meetingId: Int) {
-        logger.info("deleteMeetingLink called with: {}", meetingId)
-        val meeting = validateAndGetMeetingLink(meetingId)
-        logger.info("fetched meeting: {}", meeting)
-        meetingLinkRepository.deleteById(meetingId)
+    fun deleteMeetingLink(
+        meetingLinkId: Int
+    ) {
+        logger.info("deleteMeetingLink called with: {}", meetingLinkId)
+        val meetingLink = validateAndGetMeetingLink(meetingLinkId)
+        logger.info("fetched meeting: {}", meetingLink)
+        accountService.validateAndGetAccount(meetingLink.account.id!!).meetingLinks.remove(meetingLink)
+
+        meetingLinkRepository.deleteById(meetingLinkId)
+        if (meetingLinkRepository.findById(meetingLinkId).isPresent) {
+            error("Couldn't delete meeting link with id: $meetingLinkId")
+        }
     }
 
     private fun ensureAvailability(
-        account: Account,
+        account: AccountEntity,
         meetingLinkDTO: MeetingLinkDTO
     ) = meetingLinkDTO.dates.forEach { date ->
         account.availabilities

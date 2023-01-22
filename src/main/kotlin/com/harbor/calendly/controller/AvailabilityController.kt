@@ -9,36 +9,44 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/availability")
 class AvailabilityController(val availabilityService: AvailabilityService) {
-    @PostMapping
+    @PostMapping("/accounts/{accountId}/availability")
     @ResponseStatus(HttpStatus.CREATED)
     fun createAvailability(
+        @PathVariable("accountId") accountId: String,
         @Valid @RequestBody availabilityDTO: AvailabilityDTO
-    ) = availabilityService.createAvailability(availabilityDTO)
+    ) = availabilityService.createAvailability(accountId.toInt(), availabilityDTO)
 
-    @GetMapping("/{availabilityId}")
+    @GetMapping("/accounts/{accountId}/availability")
+    @ResponseStatus(HttpStatus.OK)
+    fun getAvailabilities(
+        @PathVariable("accountId") accountId: String,
+    ) = availabilityService.getAvailabilities(accountId.toInt())
+
+    @GetMapping("/accounts/{accountId}/availability/{availabilityId}")
     @ResponseStatus(HttpStatus.OK)
     fun getAvailability(
         @PathVariable("availabilityId") availabilityId: String
     ) = availabilityService.getAvailability(availabilityId.toInt())
 
-    @PutMapping("/{availabilityId}")
+    @PutMapping("/accounts/{accountId}/availability/{availabilityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateAvailability(
+        @PathVariable("accountId") accountId: String,
         @Valid @RequestBody availabilityDTO: AvailabilityDTO,
         @PathVariable("availabilityId") availabilityId : Int
-    ) = availabilityService.updateAvailability(availabilityId, availabilityDTO)
+    ) = availabilityService.updateAvailability(accountId.toInt(), availabilityId, availabilityDTO)
 
-    @DeleteMapping("/{availabilityId}")
+    @DeleteMapping("/accounts/{accountId}/availability/{availabilityId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteAvailability(
+        @PathVariable("accountId") accountId: String,
         @PathVariable("availabilityId") availabilityId: String
-    ) = availabilityService.deleteAvailability(availabilityId.toInt())
+    ) = availabilityService.deleteAvailability(accountId.toInt(), availabilityId.toInt())
 }

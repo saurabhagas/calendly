@@ -59,14 +59,6 @@ class BaseTest {
     @Autowired
     lateinit var meetingRepository: MeetingRepository
 
-    @BeforeEach
-    fun setUp() {
-        meetingRepository.deleteAll()
-        meetingLinkRepository.deleteAll()
-        availabilityRepository.deleteAll()
-        accountRepository.deleteAll()
-    }
-
     fun createAccount() = webTestClient
         .post()
         .uri("/accounts")
@@ -77,7 +69,7 @@ class BaseTest {
         .responseBody!!
 
     fun deactivateAccount(
-        accountId: Int
+        accountId: Int,
     ) = webTestClient
         .delete()
         .uri("/accounts/{accountId}", accountId)
@@ -85,24 +77,34 @@ class BaseTest {
         .expectStatus().isNoContent
 
     fun createAvailability(
-        accountId: Int,
+        accountId: Int
     ) = webTestClient
         .post()
-        .uri("/availability")
-        .bodyValue(AvailabilityDTO(accountId, DAY_1, START_TIME_1, END_TIME_1))
+        .uri("/accounts/$accountId/availability")
+        .bodyValue(AvailabilityDTO(DAY_1, START_TIME_1, END_TIME_1))
         .exchange()
         .expectBody(Int::class.java)
         .returnResult()
         .responseBody!!
 
     fun createAvailability2(
-        accountId: Int,
+        accountId: Int
     ) = webTestClient
         .post()
-        .uri("/availability")
-        .bodyValue(AvailabilityDTO(accountId, DAY_2, START_TIME_2, END_TIME_2))
+        .uri("/accounts/$accountId/availability")
+        .bodyValue(AvailabilityDTO(DAY_2, START_TIME_2, END_TIME_2))
         .exchange()
         .expectBody(Int::class.java)
+        .returnResult()
+        .responseBody!!
+
+    fun getAllAvailabilities(
+        accountId: Int
+    ) = webTestClient
+        .get()
+        .uri("/accounts/$accountId/availability")
+        .exchange()
+        .expectBodyList(AvailabilityDTO::class.java)
         .returnResult()
         .responseBody!!
 
@@ -110,27 +112,38 @@ class BaseTest {
         accountId: Int
     ) = webTestClient
         .post()
-        .uri("/meeting-links")
-        .bodyValue(MeetingLinkDTO(accountId, DURATION_IN_MINS, DATES))
+        .uri("/accounts/$accountId/meeting-links")
+        .bodyValue(MeetingLinkDTO(DURATION_IN_MINS, DATES))
         .exchange()
         .expectBody(Int::class.java)
         .returnResult()
         .responseBody!!
 
     fun createMeeting(
-        meetingLinkId: Int,
+        accountId: Int,
+        meetingLinkId: Int
     ) = webTestClient
         .post()
-        .uri("/meetings")
-        .bodyValue(newMeetingDTO(meetingLinkId))
+        .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings")
+        .bodyValue(newMeetingDTO())
         .exchange()
         .expectBody(Int::class.java)
         .returnResult()
         .responseBody!!
 
-    fun newMeetingDTO(
+    fun createMeeting2(
+        accountId: Int,
         meetingLinkId: Int
-    ) = MeetingDTO(meetingLinkId, DATE_1, START_TIME_2, END_TIME_2, REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE)
+    ) = webTestClient
+        .post()
+        .uri("/accounts/$accountId/meeting-links/$meetingLinkId/meetings")
+        .bodyValue(MeetingDTO(DATE_2, START_TIME_2, END_TIME_2, REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE))
+        .exchange()
+        .expectBody(Int::class.java)
+        .returnResult()
+        .responseBody!!
+
+    fun newMeetingDTO() = MeetingDTO(DATE_1, START_TIME_2, END_TIME_2, REQUESTER_NAME, REQUESTER_EMAIL, REQUESTER_PHONE)
 
     data class SomeClass(
         val id: Int,

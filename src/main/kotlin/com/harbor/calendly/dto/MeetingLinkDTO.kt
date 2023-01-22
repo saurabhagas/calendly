@@ -5,7 +5,6 @@ import javax.validation.constraints.DecimalMin
 import javax.validation.constraints.Size
 
 data class MeetingLinkDTO(
-    val accountId: Int,
     @get:DecimalMin(value = "15", message = "Can't create a meeting link < 15mins in length")
     val durationInMins: Int,
 
