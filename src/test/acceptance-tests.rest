@@ -1,5 +1,5 @@
-### Step 1: Create an account. Should return the account ID and HTTP 201 status
-POST http://18.212.192.193:8080/accounts/
+### Step 1a: Create an account. Should return the account ID and HTTP 201 status
+POST http://54.234.192.121:8080/accounts/
 Content-Type: application/json
 
 {
@@ -9,18 +9,39 @@ Content-Type: application/json
   "company": "Udaan"
 }
 
-### Step 2: Create an availability. Should return the availability ID and HTTP 201 status
-POST http://18.212.192.193:8080/accounts/1/availability/
+### Step 1b: Create another account. Should return the account ID and HTTP 201 status as well
+POST http://54.234.192.121:8080/accounts/
+Content-Type: application/json
+
+{
+  "name": "Requester Kumar",
+  "email": "requester.kumar@test.com",
+  "phone": "888-888-888",
+  "company": "Test"
+}
+
+### Step 2a: Create an availability on first account. Should return the availability ID and HTTP 201 status
+POST http://54.234.192.121:8080/accounts/1/availability/
 Content-Type: application/json
 
 {
   "dayOfWeek": "MONDAY",
   "startTime": "12:00",
-  "endTime": "12:30"
+  "endTime": "17:00"
 }
 
-### Step 3: Create a meeting link. Should return the meeting link ID and HTTP 201 status
-POST http://18.212.192.193:8080/accounts/1/availability/1/meeting-links/
+### Step 2b: Create an availability on second account. Should return the availability ID and HTTP 201 status
+POST http://54.234.192.121:8080/accounts/2/availability/
+Content-Type: application/json
+
+{
+  "dayOfWeek": "MONDAY",
+  "startTime": "13:00",
+  "endTime": "14:00"
+}
+
+### Step 3: Create a meeting link with first account as the host. Should return the meeting link ID and HTTP 201 status
+POST http://54.234.192.121:8080/accounts/1/meeting-links/
 Content-Type: application/json
 
 {
@@ -28,15 +49,22 @@ Content-Type: application/json
   "dates": ["2023-01-30"]
 }
 
-### Step 4: Create request with POST. Should return the meeting ID and HTTP 201 status
-POST http://18.212.192.193:8080/accounts/1/availability/1/meeting-links/1/meetings/
+### Step 4: Find overlap in availabilities between first and second accounts. Should return the overlap window and HTTP 200 status
+GET http://54.234.192.121:8080/accounts/1/overlap/2
+
+### Step 5: Request a meeting from second account to first account using the meeting link above. Should return the meeting ID and HTTP 201 status
+POST http://54.234.192.121:8080/accounts/1/meeting-links/1/meetings/
 Content-Type: application/json
 
 {
   "date": "2023-01-30",
-  "startTime": "11:30",
-  "endTime": "12:00",
-  "requesterName": "Requester",
-  "requesterEmail": "requester@somedomain.com",
-  "requesterPhone": "900-000-000"
+  "startTime": "13:30",
+  "endTime": "14:00",
+  "requesterAccountId": 2
 }
+
+### Step 6a: Check first account's availabilities. Should the remaining availability and HTTP 200 status
+GET http://54.234.192.121:8080/accounts/1/availability
+
+### Step 6b: Check second account's availabilities. Should the remaining availability and HTTP 200 status
+GET http://54.234.192.121:8080/accounts/2/availability

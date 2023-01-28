@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
- * Integration tests for /meeting-links resource.
+ * Integration tests for /accounts/{accountId}/meeting-links resource.
  */
 class MeetingLinkControllerTest : BaseTest() {
     @BeforeEach

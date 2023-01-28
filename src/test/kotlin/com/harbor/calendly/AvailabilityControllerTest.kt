@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 /**
- * Integration tests for /availability resource.
+ * Integration tests for /accounts/{accountId}/availability resource.
  */
 class AvailabilityControllerTest: BaseTest() {
     @BeforeEach

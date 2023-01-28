@@ -8,7 +8,6 @@ import mu.KLogging
 
 val logger = KLogging().logger()
 
-//TODO[Saurabh]: Write unit tests for this file
 fun checkForOverlappingAvailabilities(
     availabilities: List<AvailabilityEntity>,
     availabilityDTO: AvailabilityDTO,
@@ -34,30 +33,55 @@ fun firstOverlappingAvailability(
 }
 
 fun findAllOverlaps(
-    hostAvailabilities: List<AvailabilityEntity>,
-    requesterAvailabilities: List<AvailabilityEntity>,
+    hostAvailabilities: MutableList<AvailabilityEntity>,
+    requesterAvailabilities: MutableList<AvailabilityEntity>,
 ): List<AvailabilityDTO> {
     logger.info("findAllOverlaps called with $hostAvailabilities and $requesterAvailabilities")
-    val compareByDayAndStartTime = Comparator.comparing(AvailabilityEntity::dayOfWeek)
+    val compareByDayAndStartTime = Comparator
+        .comparing(AvailabilityEntity::dayOfWeek)
         .thenComparing(AvailabilityEntity::startTime)
-    val mergedAndSorted = hostAvailabilities.plus(requesterAvailabilities).sortedWith(compareByDayAndStartTime)
-    logger.info("Merged and sorted availabilities: $mergedAndSorted")
 
-    // There's no need to merge the overlapping availabilities because conjunction of two sets of disjoint availabilities cannot intersect
-    return (1 until mergedAndSorted.size)
-        .filter { index -> doesCurrentOverlapWithPrevious(mergedAndSorted, index) }
-        .map { index ->
-            AvailabilityDTO(
-                dayOfWeek = mergedAndSorted[index].dayOfWeek,
-                startTime = mergedAndSorted[index].startTime,
-                endTime = mergedAndSorted[index - 1].endTime,
+    // Availabilities are sorted based on insertion time, NOT by starTime
+    // Sort by startTime to get nlogn time instead of n^2 time in comparisons. sortWith() uses in-place sorting on mutable lists
+    hostAvailabilities.sortWith(compareByDayAndStartTime)
+    requesterAvailabilities.sortWith(compareByDayAndStartTime)
+
+    var hostPointer = 0
+    var requesterPointer = 0
+    val result = mutableListOf<AvailabilityDTO>()
+    while (hostPointer < hostAvailabilities.size && requesterPointer < requesterAvailabilities.size) {
+        if (hasOverlap(hostAvailabilities, requesterAvailabilities, hostPointer, requesterPointer)) {
+            result.add(
+                AvailabilityDTO(
+                    dayOfWeek = hostAvailabilities[hostPointer].dayOfWeek,
+                    startTime = maxOf(requesterAvailabilities[requesterPointer].startTime, hostAvailabilities[hostPointer].startTime),
+                    endTime = minOf(requesterAvailabilities[requesterPointer].endTime, hostAvailabilities[hostPointer].endTime),
+                )
             )
+            if (requesterAvailabilities[requesterPointer].endTime < hostAvailabilities[hostPointer].endTime) {
+                // requester's availability is a subset of host's availability - increment fast pointer only
+                requesterPointer++
+            } else if (hostAvailabilities[hostPointer].endTime < requesterAvailabilities[requesterPointer].endTime) {
+                // host's availability is a subset of requester's availability - increment fast pointer only
+                hostPointer++
+            } else {
+                requesterPointer++
+                hostPointer++
+            }
+        } else {
+            hostPointer = requesterPointer
+            requesterPointer++
         }
-        .also { logger.info("Overlapping availabilities: $it") }
+    }
+    logger.info("Overlapping availabilities: $result")
+    // There's no need to merge the overlapping availabilities because conjunction of two sets of disjoint availabilities cannot intersect
+    return result
 }
 
-private fun doesCurrentOverlapWithPrevious(
-    availabilities: List<AvailabilityEntity>,
-    index: Int,
-) = availabilities[index - 1].dayOfWeek == availabilities[index].dayOfWeek &&
-    availabilities[index].startTime < availabilities[index - 1].endTime
+private fun hasOverlap(
+    first: List<AvailabilityEntity>,
+    second: List<AvailabilityEntity>,
+    firstIndex: Int,
+    secondIndex: Int,
+) = first[firstIndex].dayOfWeek == second[secondIndex].dayOfWeek &&
+    second[secondIndex].startTime < first[firstIndex].endTime

@@ -6,7 +6,7 @@ A Kotlin + Springboot implementation of the MVP for Calendly-like app following 
 2. Install Kotlin v1.6 (Recommendation is to install IntelliJ IDEA as it comes bundled with Kotlin and makes build tasks simpler) 
 3. Clone the project from [GitHub](https://github.com/saurabhagas/calendly)
 4. Build the project using `./gradlew build`
-5. Start the application using `./gradlew bootRun`
+5. Start the application using `./gradlew bootRun` and access it at `localhost:8080`
 
 ## Project structure
 1. `${projectRoot}/src/main/kotlin` contains the source code where:
@@ -18,21 +18,21 @@ A Kotlin + Springboot implementation of the MVP for Calendly-like app following 
    6. Other miscellaneous classes to support the logic and organize code better.
    7. `CalendlyApplication.kt` is the executable.
 2. `${projectRoot}/src/test/kotlin` contains the source code where:
-   1. `*.rest` files contain HTTP requests which can be sent to the server.
+   1. `*.rest` files contain HTTP requests which can be sent to the server manually.
    2. `AcceptanceTests.kt` contains a demo of the desired functionalities in the MVP.
-   3. `*.Test` contain the integration test for each API root entrypoint
+   3. `*.Test` contain integration tests for each API root entrypoint.
 
 ## Supported features
 1. Creating an account via `/accounts` resource.
-2. Creating an availability for given registered user via `/availability` resource.
-3. Creating a meeting link for a registered user via `/meeting-links` resource.
-4. Using the meeting link to block a registered user's calendar via `/meetings` resource.
-5. Finding overlaps in two registered users' calendars
+2. Creating an availability for given registered user via `/accounts/{accoundId}/availability` resource.
+3. Finding overlaps in availabilities using `/accounts/{accoundId}/overlap` resource.
+4. Creating a meeting link for a registered user via `/accounts/{accoundId}/meeting-links` resource.
+5. Using the meeting link to block a registered user's calendar via `/accounts/{accoundId}/meeting-links/{meetingLinkId}/meetings` resource.
 
 ## Testing the functionality
 ### Testing via sending http requests on the deployed instance
-1. The application is hosted at `18.212.192.193:8080`
-2. Use the `acceptance-tests.rest` file (located in `${projectRoot}/src/test/` directory along with other `*.rest` files) to send HTTP requests to the server running at `18.212.192.193:8080`
+1. The application is hosted at `54.234.192.121:8080`
+2. Use the `acceptance-tests.rest` file (located in `${projectRoot}/src/test/` directory along with other `*.rest` files) to send HTTP requests to the server running at `54.234.192.121:8080`
 
 ### Testing via sending http requests with a locally running instance
 1. Start the application locally by running `./gradlew bootRun`

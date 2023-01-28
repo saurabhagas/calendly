@@ -7,7 +7,7 @@ Content-Type: application/json
 
 {
   "durationInMins": 30,
-  "dates": ["2023-01-30"]
+  "dates": ["2023-01-31"]
 }
 
 ### Step 3: Send PUT on meeting link with id 1 to change meeting link details. Should return HTTP 204 status
