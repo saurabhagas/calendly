@@ -1,3 +1,4 @@
+### TODO: Test all *.rest files
 ### Step 1: Send GET on account with id 1. Should throw HTTP 404 status
 GET http://localhost:8080/accounts/1
 
@@ -7,12 +8,15 @@ Content-Type: application/json
 
 {
   "name": "Saurabh Agarwal",
-  "email": "saurabh.agarwal@udaan.com",
-  "phone": "123-234-345",
+  "email": "saurabh.agarwal@hello.com",
+  "phone": "123-234-345-123",
   "company": "Udaan"
 }
 
-### Step 3: Send PUT on account with id 1 to change account details. Should return HTTP 204 status
+### Step 3: Send GET on account to search by name. Should return HTTP 200 status along with the array of accounts
+GET http://localhost:8080/accounts?name=Saurabh Agarwal
+
+### Step 4: Send PUT on account with id 1 to change account details. Should return HTTP 204 status
 PUT http://localhost:8080/accounts/1
 Content-Type: application/json
 
@@ -23,11 +27,11 @@ Content-Type: application/json
   "company": "Harbor"
 }
 
-### Step 4: Send GET on account with id 1 to check if the updates have been applied. Should return HTTP 200 status
+### Step 5: Send GET on account with id 1 to check if the updates have been applied. Should return HTTP 200 status
 GET http://localhost:8080/accounts/1
 
-### Step 5: Send DELETE on account with id 1. Should return HTTP 204 status
+### Step 6: Send DELETE on account with id 1. Should return HTTP 204 status
 DELETE http://localhost:8080/accounts/1
 
-### Step 6: Send GET on account with id 1. Should throw HTTP 403 status now that the account has been deactivated
+### Step 7: Send GET on account with id 1. Should throw HTTP 403 status now that the account has been deactivated
 GET http://localhost:8080/accounts/1

@@ -12,13 +12,25 @@ class AvailabilitySplitterService(
     val availabilityService: AvailabilityService
 ) {
     @Transactional
-    fun findOverlapAndUpdateAvailability(
-        availabilities: List<AvailabilityEntity>,
+    fun checkAndUpdateAvailability(
+        hostAvailabilities: List<AvailabilityEntity>,
+        requesterAvailabilities: MutableList<AvailabilityEntity>,
         meetingDTO: MeetingDTO,
     ) {
-        val availability = firstOverlappingAvailability(availabilities, meetingDTO)
-        val accountId = availability.account.id!!
+        val hostAvailability = firstOverlappingAvailability(hostAvailabilities, meetingDTO)
+        val hostAccountId = hostAvailability.account.id!!
+        updateAvailability(hostAccountId, hostAvailability, meetingDTO)
 
+        val requesterAvailability = firstOverlappingAvailability(requesterAvailabilities, meetingDTO)
+        val requesterAccountId = requesterAvailability.account.id!!
+        updateAvailability(requesterAccountId, requesterAvailability, meetingDTO)
+    }
+
+    private fun updateAvailability(
+        accountId: Int,
+        availability: AvailabilityEntity,
+        meetingDTO: MeetingDTO,
+    ) {
         availabilityService.deleteAvailability(accountId, availability.id!!)
         if (meetingDTO.startTime == availability.startTime && meetingDTO.endTime < availability.endTime) {
             val newAvailability = AvailabilityDTO(

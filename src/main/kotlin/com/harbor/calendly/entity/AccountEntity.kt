@@ -39,4 +39,11 @@ data class AccountEntity(
         orphanRemoval = true
     )
     val meetingLinks : MutableList<MeetingLinkEntity> = mutableListOf(),
+
+    @OneToMany(
+        mappedBy = "requesterAccount",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true
+    )
+    val meetingsRequested : MutableList<MeetingEntity> = mutableListOf(),
 )

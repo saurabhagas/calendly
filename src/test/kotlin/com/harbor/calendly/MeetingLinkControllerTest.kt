@@ -37,7 +37,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testCreateMeetingLinkOnDeactivatedAccount() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         deactivateAccount(accountId)
         webTestClient
             .post()
@@ -59,7 +59,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testCreateMeetingLinkWithPartialAvailability() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         createAvailability(accountId)
         webTestClient
             .post()
@@ -71,7 +71,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testCreateMeetingLink() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         createAvailability(accountId)
         createAvailability2(accountId)
         webTestClient
@@ -94,7 +94,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testGetPresentMeetingLink() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
@@ -129,7 +129,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testUpdatePresentMeetingLink() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)
@@ -152,7 +152,7 @@ class MeetingLinkControllerTest : BaseTest() {
 
     @Test
     fun testDeleteMeetingLink() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         createAvailability(accountId)
         createAvailability2(accountId)
         val meetingLinkId = createMeetingLink(accountId)

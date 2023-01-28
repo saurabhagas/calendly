@@ -51,7 +51,7 @@ class AccountControllerTest : BaseTest() {
             .bodyValue(AccountDTO(NAME_1, "blah", PHONE_1))
             .exchange()
             .expectStatus().isBadRequest
-            .expectBody(String::class.java).isEqualTo("email must be valid")
+            .expectBody(String::class.java).isEqualTo("\"email must be valid\"")
     }
 
     @Test
@@ -77,24 +77,100 @@ class AccountControllerTest : BaseTest() {
 
     @Test
     fun testCreateAccountWithExistingEmail() {
-        createAccount()
+        createAccount1()
         webTestClient
             .post()
             .uri("/accounts")
-            .bodyValue(AccountDTO(NAME_2, EMAIL_1, PHONE_2))
+            .bodyValue(AccountDTO(NAME_1, EMAIL_1, PHONE_2))
             .exchange()
             .expectStatus().isBadRequest
     }
 
     @Test
     fun testCreateAccountWithExistingPhone() {
-        createAccount()
+        createAccount1()
         webTestClient
             .post()
             .uri("/accounts")
-            .bodyValue(AccountDTO(NAME_2, EMAIL_2, PHONE_1))
+            .bodyValue(AccountDTO(NAME_1, EMAIL_2, PHONE_1))
             .exchange()
             .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun testGetAllAccountsWhenNoAccountsExist() {
+        webTestClient
+            .get()
+            .uri("/accounts")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(0)
+    }
+
+    @Test
+    fun testGetAllAccountsWithNoMatchingNames() {
+        createAccount1()
+        webTestClient
+            .get()
+            .uri("/accounts?name=blah")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(0)
+    }
+
+    @Test
+    fun testGetAllAccountsWithMatchingNames() {
+        createAccount1()
+        webTestClient
+            .get()
+            .uri("/accounts?name=$NAME_1")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(1)
+            .contains(AccountDTO(NAME_1, EMAIL_1, PHONE_1))
+    }
+
+    @Test
+    fun testGetAllAccountsWithMatchingNamesButNonMatchingEmail() {
+        createAccount1()
+        webTestClient
+            .get()
+            .uri("/accounts?name=$NAME_1&email=blah@blah.com")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(0)
+    }
+
+    @Test
+    fun testGetAllAccountsWithMatchingNamesAndMatchingEmail() {
+        createAccount1()
+        webTestClient
+            .get()
+            .uri("/accounts?name=$NAME_1&email=$EMAIL_1")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(1)
+            .contains(AccountDTO(NAME_1, EMAIL_1, PHONE_1))
+    }
+
+    @Test
+    fun testGetAllAccountsWithNameMatchesMultipleAccounts() {
+        createAccount1()
+        createAccount2()
+        webTestClient
+            .get()
+            .uri("/accounts?name=$NAME_1")
+            .exchange()
+            .expectStatus().isOk
+            .expectBodyList(AccountDTO::class.java)
+            .hasSize(2)
+            .contains(AccountDTO(NAME_1, EMAIL_1, PHONE_1))
+            .contains(AccountDTO(NAME_1, EMAIL_2, PHONE_2))
     }
 
     @Test
@@ -108,7 +184,7 @@ class AccountControllerTest : BaseTest() {
 
     @Test
     fun testGetPresentAccount() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         webTestClient
             .get()
             .uri("/accounts/{accountId}", accountId)
@@ -130,7 +206,7 @@ class AccountControllerTest : BaseTest() {
 
     @Test
     fun testUpdatePresentAccount() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         webTestClient
             .put()
             .uri("/accounts/{accountId}", accountId)
@@ -150,7 +226,7 @@ class AccountControllerTest : BaseTest() {
 
     @Test
     fun testDeactivatePresentAccount() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         webTestClient
             .delete()
             .uri("/accounts/{accountId}", accountId)
@@ -160,7 +236,7 @@ class AccountControllerTest : BaseTest() {
 
     @Test
     fun testGetDeactivatedAccount() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         webTestClient
             .delete()
             .uri("/accounts/{accountId}", accountId)

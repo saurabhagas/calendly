@@ -64,16 +64,15 @@ fun MeetingLinkEntity.toMeetingLinkDTO() = MeetingLinkDTO(
 
 fun MeetingDTO.toMeeting(
     meetingLink: MeetingLinkEntity,
-    meetingId: Int?
+    meetingId: Int?,
+    requesterAccount: AccountEntity
 ) = MeetingEntity(
     id = meetingId,
     meetingLink = meetingLink,
     date = date,
     startTime = startTime,
     endTime = endTime,
-    requesterName = requesterName,
-    requesterEmail = requesterEmail,
-    requesterPhone = requesterPhone,
+    requesterAccount = requesterAccount,
     requesterNotes = requesterNotes
 )
 
@@ -81,9 +80,7 @@ fun MeetingEntity.toMeetingDTO() = MeetingDTO(
     date = date,
     startTime = startTime,
     endTime = endTime,
-    requesterName = requesterName,
-    requesterEmail = requesterEmail,
-    requesterPhone = requesterPhone,
+    requesterAccountId = requesterAccount.id!!,
     requesterNotes = requesterNotes
 )
 

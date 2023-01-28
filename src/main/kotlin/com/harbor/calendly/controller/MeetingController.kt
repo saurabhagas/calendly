@@ -3,10 +3,8 @@ package com.harbor.calendly.controller
 import com.harbor.calendly.dto.MeetingDTO
 import com.harbor.calendly.service.MeetingService
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -16,30 +14,30 @@ import javax.validation.Valid
 
 @RestController
 class MeetingController(val meetingService: MeetingService) {
-    @RequestMapping("/accounts/{accountId}/meeting-links/{meetingLinkId}/meetings", method = [RequestMethod.POST])
+    @RequestMapping(Endpoints.MEETINGS_URL, consumes = [MediaType.APPLICATION_JSON_VALUE], method = [RequestMethod.POST])
     @ResponseStatus(HttpStatus.CREATED)
     fun createMeeting(
         @PathVariable("meetingLinkId") meetingLinkId: String,
         @Valid @RequestBody meetingDTO: MeetingDTO
-    ) = meetingService.createMeeting(meetingLinkId.toInt(), meetingDTO)
+    ): Int = meetingService.createMeeting(meetingLinkId.toInt(), meetingDTO)
 
-    @RequestMapping("/accounts/{accountId}/meeting-links/{meetingLinkId}/meetings/{meetingId}", method = [RequestMethod.GET])
+    @RequestMapping("${Endpoints.MEETINGS_URL}/{meetingId}", produces = [MediaType.APPLICATION_JSON_VALUE], method = [RequestMethod.GET])
     @ResponseStatus(HttpStatus.OK)
     fun getMeeting(
         @PathVariable("meetingId") meetingId: String
-    ) = meetingService.getMeeting(meetingId.toInt())
+    ): MeetingDTO = meetingService.getMeeting(meetingId.toInt())
 
-    @RequestMapping("/accounts/{accountId}/meeting-links/{meetingLinkId}/meetings/{meetingId}", method = [RequestMethod.PUT])
+    @RequestMapping("${Endpoints.MEETINGS_URL}/{meetingId}", consumes = [MediaType.APPLICATION_JSON_VALUE], method = [RequestMethod.PUT])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun updateMeeting(
         @PathVariable("meetingLinkId") meetingLinkId: String,
         @Valid @RequestBody meetingDTO: MeetingDTO,
         @PathVariable("meetingId") meetingId : Int
-    ) = meetingService.updateMeeting(meetingLinkId.toInt(), meetingId, meetingDTO)
+    ): Unit = meetingService.updateMeeting(meetingLinkId.toInt(), meetingId, meetingDTO)
 
-    @RequestMapping("/accounts/{accountId}/meeting-links/{meetingLinkId}/meetings/{meetingId}", method = [RequestMethod.DELETE])
+    @RequestMapping("${Endpoints.MEETINGS_URL}/{meetingId}", method = [RequestMethod.DELETE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteMeeting(
         @PathVariable("meetingId") meetingId: String
-    ) = meetingService.deleteMeeting(meetingId.toInt())
+    ): Unit = meetingService.deleteMeeting(meetingId.toInt())
 }

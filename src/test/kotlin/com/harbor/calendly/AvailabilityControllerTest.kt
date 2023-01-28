@@ -1,6 +1,8 @@
 package com.harbor.calendly
 
 import com.harbor.calendly.dto.AvailabilityDTO
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -36,7 +38,7 @@ class AvailabilityControllerTest: BaseTest() {
 
     @Test
     fun testCreateAvailability() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         webTestClient
             .post()
             .uri("/accounts/$accountId/availability")
@@ -44,6 +46,26 @@ class AvailabilityControllerTest: BaseTest() {
             .exchange()
             .expectStatus().isCreated
             .expectBody(Int::class.java)
+    }
+
+    @Test
+    fun testNoMergeAvailabilitiesWhenIntervalsAreDisjoint() {
+        val accountId = createAccount1()
+        createAvailability(accountId)
+        createAvailability2(accountId)
+        assertEquals(2, getAllAvailabilities(accountId).size)
+    }
+
+    @Test
+    fun testMergeAvailabilitiesWhenIntervalsAreContiguous() {
+        val accountId = createAccount1()
+        createAvailability(accountId)
+        val endTime = END_TIME_1.plusHours(1)
+        createAvailability2(accountId, dayOfWeek = DAY_1, startTime = END_TIME_1, endTime = endTime)
+
+        val allAvailabilities = getAllAvailabilities(accountId)
+        assertEquals(1, allAvailabilities.size)
+        assertTrue(allAvailabilities.contains(AvailabilityDTO(DAY_1, START_TIME_1, endTime)))
     }
 
     @Test
@@ -57,7 +79,7 @@ class AvailabilityControllerTest: BaseTest() {
 
     @Test
     fun testGetPresentAvailability() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         val availabilityId = createAvailability(accountId)
         webTestClient
             .get()
@@ -80,7 +102,7 @@ class AvailabilityControllerTest: BaseTest() {
 
     @Test
     fun testUpdateAvailabilityWhenEndTimeEarlierThanStartTime() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         val availabilityId = createAvailability(accountId)
         webTestClient
             .put()
@@ -92,7 +114,7 @@ class AvailabilityControllerTest: BaseTest() {
 
     @Test
     fun testUpdatePresentAvailability() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         val availabilityId = createAvailability(accountId)
         webTestClient
             .put()
@@ -113,7 +135,7 @@ class AvailabilityControllerTest: BaseTest() {
 
     @Test
     fun testDeleteAvailability() {
-        val accountId = createAccount()
+        val accountId = createAccount1()
         val availabilityId = createAvailability(accountId)
         webTestClient
             .delete()

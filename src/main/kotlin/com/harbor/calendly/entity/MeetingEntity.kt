@@ -26,13 +26,14 @@ data class MeetingEntity(
     val date: LocalDate,
     val startTime: LocalTime,
     val endTime: LocalTime,
-    val requesterName: String,
-    val requesterEmail: String,
-    val requesterPhone: String,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(referencedColumnName = "id", nullable = false)
+    val requesterAccount: AccountEntity,
+
     val requesterNotes: String? = null
 ) {
     override fun toString() =
         "Meeting(id=$id, meetingLinkId=${meetingLink.id}, date=$date, startTime=$startTime," +
-        " endTime=$endTime, requesterName='$requesterName', requesterEmail='$requesterEmail'," +
-        " requesterPhone='$requesterPhone', requesterNotes='$requesterNotes')"
+        " endTime=$endTime, requesterAccountId='${requesterAccount.id}', requesterNotes='$requesterNotes')"
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class AvailabilityService(
     val accountService: AccountService,
+    val availabilityJoinerService: AvailabilityJoinerService,
     val availabilityRepository: AvailabilityRepository
 ) {
     companion object : KLogging()
@@ -25,9 +26,9 @@ class AvailabilityService(
             "End time should be greater than start time"
         }
         val account = accountService.validateAndGetAccount(accountId)
-        checkForOverlappingAvailabilities(account.availabilities, availabilityDTO)
         logger.info("fetched account: {}", account)
-        val result = availabilityRepository.save(availabilityDTO.toAvailability(account))
+        checkForOverlappingAvailabilities(account.availabilities, availabilityDTO)
+        val result = availabilityJoinerService.mergeOverlappingAvailabilities(account, availabilityDTO)
         logger.info("create result: {}", result)
         return requireNotNull(result.id)
     }
